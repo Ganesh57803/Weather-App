@@ -1,32 +1,61 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import CreatableSelect from 'react-select/creatable';
+import cities from '../data/cities.json';
 
 const SearchBar = ({ onSelectCity, label }) => {
-  const [input, setInput] = useState('');
+  const [cityOptions, setCityOptions] = useState([]);
+  const [selectedCity, setSelectedCity] = useState(null);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (input.trim()) {
-      onSelectCity(input);
-      setInput('');
+  useEffect(() => {
+    // Convert city list to options
+    const options = cities.map((city) => ({
+      value: city.name,
+      label: `${city.name}, ${city.country}`,
+    }));
+    setCityOptions(options);
+  }, []);
+
+  const handleChange = (newValue) => {
+    setSelectedCity(newValue); // Update the selected city
+    if (newValue) {
+      onSelectCity(newValue.value); // Send selected or custom city
+    } else {
+      onSelectCity(null); // Clear the selection
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-2">
-      <label className="block text-sm font-semibold mb-1">{label}</label>
-      <div className="flex">
-        <input
-          type="text"
-          placeholder="Enter city"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          className="w-full px-3 py-2 rounded-l-lg border border-gray-300 text-gray-900 dark:text-white bg-white dark:bg-gray-800"
-        />
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-r-lg">
-          Search
-        </button>
-      </div>
-    </form>
+    <div className="mb-4">
+      <label className="block text-sm font-semibold mb-2">{label}</label>
+      <CreatableSelect
+        isClearable
+        options={cityOptions}
+        value={selectedCity} // Bind the selected value
+        onChange={handleChange}
+        placeholder="Search or enter a city"
+        className="mb-2"
+        styles={{
+          control: (base) => ({
+            ...base,
+            backgroundColor: 'rgba(255, 255, 255, 0.8)', // Blurred transparent white
+            backdropFilter: 'blur(5px)', // Apply blur effect
+            color: 'black', // Text color
+          }),
+          singleValue: (base) => ({
+            ...base,
+            color: 'black', // Text color for selected value
+          }),
+          input: (base) => ({
+            ...base,
+            color: 'black', // Text color for input
+          }),
+          menu: (base) => ({
+            ...base,
+            color: 'black', // Text color for dropdown items
+          }),
+        }}
+      />
+    </div>
   );
 };
 
